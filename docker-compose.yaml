@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  auth_db:
+    image: postgres:15.0-alpine
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - users_data:/var/lib/postgresql/data
+    expose:
+      - "5432"
+    ports:
+      - "5432:5432"
+
+
+
+#  auth_service:
+#    build:
+#      context: ./auth_service
+#    env_file:
+#      - .env
+#    depends_on:
+#      - auth_redis
+#      - auth_db
+#    expose:
+#      - "8002"
+
+
+volumes:
+  users_data:
+#  static:
+#  media:
