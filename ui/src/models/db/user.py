@@ -20,6 +20,8 @@ class User(Base, UUIDModelMixin, CreatedAtMixin, BaseCRUDModelMixin):
     last_name = Column(String(50), nullable=True)
     middle_name = Column(String(50), nullable=True)
 
+    devices = relationship("Device", back_populates="user")
+
     @classmethod
     async def create(cls, db: AsyncSession, **kwargs):
         if "password" in kwargs:

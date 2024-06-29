@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     pg_db: str = Field(default="auth", validation_alias="POSTGRES_DB")
 
     jwt_secret_key: str = Field(default="jwt_secret_key", validation_alias="JWT_SECRET_KEY")
-    jwt_algorithm: str = Field(default="jwt_algorithm", validation_alias="JWT_ALGORITHM")
+    jwt_algorithm: str = Field(default="HS256", validation_alias="JWT_ALGORITHM")
 
     access_token_expire_minutes: int = Field(
         default=50, validation_alias="ACCESS_TOKEN_EXPIRE_MINUTES"

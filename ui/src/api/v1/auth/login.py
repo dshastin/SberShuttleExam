@@ -1,3 +1,13 @@
+from typing import Annotated
+
+from fastapi import APIRouter, Body, Depends, Header, HTTPException, Query, Request, status
+
+from models import JWToken, UserSchemaBase
+from services.users import UserService, get_user_service
+
+login_router = APIRouter(prefix="/login")
+
+
 @login_router.post(
     "/",
     summary="Create access and refresh tokens for user",

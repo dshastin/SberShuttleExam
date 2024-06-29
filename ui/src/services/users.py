@@ -13,6 +13,7 @@ from werkzeug.security import generate_password_hash
 from core.config import settings
 from db.postgres import get_db
 from models import (
+    Device,
     JWToken,
     User,
     UserSchemaChangeLogin,
@@ -29,10 +30,24 @@ class UserService:
     def __init__(self, db: AsyncSession):
         self.db = db
 
+    async def authenticate_user(self, email: str, password: str):
+        """
+        Authenticates a user based on email and password.
+
+        :param email: str The email address of the user.
+        :param password: str The password of the user.
+        :return: UserModel The authenticated user object.
+        """
+        user: User | None = await User.get_by_email(self.db, email)
+        if user is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="user not found")
+        if not user.check_password(password):
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="incorrect password")
+        return user
+
     async def login_user(self, user: User, user_agent: str):
         access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
         user_data: UserSchemaCreateSuccess = UserSchemaCreateSuccess.model_validate(user)
-        user_data.role_name = user.role.role if user.role is not None else None
         payload_data = user_data.model_dump(mode="json")
         access_token = self.create_jwt_token(
             data=payload_data, expires_delta=access_token_expires, token_type="access"
@@ -172,7 +187,6 @@ class UserService:
             refresh_token=refresh_token,
             expires_in=int(expire.timestamp()),
         )
-        await AccessHistory.create(self.db, device=device)
 
     async def refresh_access_token(self, user: User, token: str) -> RefreshedToken:
         """
