@@ -7,7 +7,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 class Settings(BaseSettings):
-    project_name: str = Field(default="auth service", validation_alias="AUTH_SERVICE_NAME")
+    project_name: str = Field(default="Sber Homework", validation_alias="AUTH_SERVICE_NAME")
     cache_expire_in_seconds: int = Field(default=300, validation_alias="CACHE_EXPIRE_IN_SECONDS")
     handlers_logging_lvl: str = Field(default="DEBUG", validation_alias="HANDLERS_LOGGING_LEVEL")
     logger_logging_lvl: str = Field(default="INFO", validation_alias="LOGGER_LOGGING_LEVEL")
@@ -31,12 +31,6 @@ class Settings(BaseSettings):
 
     num_bytes: int = Field(default=6, validation_alias="NUM_PASSWORD_BYTES")
 
-    # router regexp
-    path_mask: str = (
-        r"^\/api\/(v1\/auth\/login|v1\/auth\/register|v1\/auth\/refresh|openapi-auth|"
-        r"openapi-auth.json)\/*"
-    )
-
     model_config = SettingsConfigDict(env_file=".env", extra="allow")
 
     def get_db_url(self):
@@ -44,7 +38,6 @@ class Settings(BaseSettings):
             f"postgresql+asyncpg://{self.pg_user}:{self.pg_password}"
             f"@{self.pg_host}:{self.pg_port}/{self.pg_db}"
         )
-        print(pg_url)
         return pg_url
 
 

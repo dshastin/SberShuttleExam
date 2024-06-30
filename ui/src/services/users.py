@@ -197,11 +197,7 @@ class UserService:
         :return: RefreshedToken containing the new access token.
         """
         refresh_token: str = token.split(" ").pop()
-        refresh_hash = hashlib.md5(f"refresh_token:{refresh_token}".encode("utf-8")).hexdigest()
-        if cached_token is not None:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN, detail="Refresh token in blacklist"
-            )
+        # refresh_hash = hashlib.md5(f"refresh_token:{refresh_token}".encode("utf-8")).hexdigest()
         device_query: Select = select(Device).where(
             and_(Device.user_id == user.id, Device.refresh_token == refresh_token)
         )
