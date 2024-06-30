@@ -1,7 +1,7 @@
 version: "3.9"
 
 services:
-  auth_db:
+  db:
     image: postgres:15.0-alpine
     restart: always
     env_file:
@@ -13,21 +13,18 @@ services:
     ports:
       - "5432:5432"
 
-
-
-#  auth_service:
-#    build:
-#      context: ./auth_service
-#    env_file:
-#      - .env
-#    depends_on:
-#      - auth_redis
-#      - auth_db
-#    expose:
-#      - "8002"
+  auth_service:
+    build:
+      context: ./ui
+    env_file:
+      - .env
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
 
 
 volumes:
   users_data:
-#  static:
-#  media:
+  static:
+
