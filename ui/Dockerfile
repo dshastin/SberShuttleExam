@@ -7,7 +7,7 @@ RUN microdnf install shadow-utils  \
     && microdnf install procps \
     && microdnf install python3.11 python3.11-setuptools python3.11-devel binutils clang
 
-RUN groupadd -r web && useradd -d /opt/app -r -g web web && chown web:web -R /opt/app
+RUN groupadd -r web && useradd -d /opt/app -r -g web web && chown web:web -R /opt/app/
 
 RUN python3 -m ensurepip --upgrade \
     && python3 -m venv venv
@@ -22,6 +22,8 @@ COPY src/requirements.txt ./
 RUN python3 -m pip install -r requirements.txt
 
 COPY ./src/ entrypoint.sh ./
+
+RUN chown web:web -R /opt/app/static
 
 USER web
 

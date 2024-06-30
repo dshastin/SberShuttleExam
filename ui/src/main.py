@@ -36,8 +36,3 @@ app.include_router(auth_router, prefix='/api')
 app.include_router(uploads_router, prefix='/api')
 app.include_router(pages_router, prefix='/pages')
 app.include_router(users_router, prefix='/api')
-
-
-@app.get('/demo/{path:path}')
-async def html_landing() -> HTMLResponse:
-    return HTMLResponse(prebuilt_html(title='FastUI Demo'))

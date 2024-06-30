@@ -1,14 +1,15 @@
 import shutil
 
 from fastapi import APIRouter, UploadFile, Depends, Request
-from models import Image, ImageModel
-from db.postgres import get_db
-from fastapi.responses import RedirectResponse
+
 from core.logger import logger
+from db.postgres import get_db
+from models import Image, ImageModel
 
 router = APIRouter()
 
-@router.get("/get_all", tags=["uploads"], response_model=list[ImageModel])
+
+@router.get("/get_all", tags=["Uploads"], response_model=list[ImageModel])
 async def get_uploaded_files(request: Request, db=Depends(get_db)):
     all_images: list[Image] = await Image.get_all(db)
     logger.info(f"Got {len(all_images)}")
