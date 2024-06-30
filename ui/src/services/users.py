@@ -40,6 +40,7 @@ class UserService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="user not found")
         if not user.check_password(password):
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="incorrect password")
+        logger.info(f"User authenticated with email: {email}")
         return user
 
     async def login_user(self, user: User, user_agent: str):
@@ -63,6 +64,7 @@ class UserService:
             token_type="refresh",
         )
         await self.put_refresh_token_to_db(refresh_token, refresh_token_expires, user, user_agent)
+        logger.info('User authenticated, refresh_token updated')
         return JWToken(access_token=access_token, refresh_token=refresh_token)
 
     @staticmethod
@@ -89,6 +91,7 @@ class UserService:
         encoded_jwt = jwt.encode(
             to_encode, settings.jwt_secret_key, algorithm=settings.jwt_algorithm
         )
+        logger.info(f"JWT token created")
         return encoded_jwt
 
     async def create_user(self, user_data: UserSchemaCreate) -> User:
@@ -100,6 +103,7 @@ class UserService:
         """
         await User.create(self.db, **user_data.model_dump())
         user: User = await User.get_by_email(self.db, email=user_data.email)
+        logger.info(f"created user: {user.id}")
         return user
 
     async def get_user_by_id(self, user_id: UUID):
@@ -110,6 +114,7 @@ class UserService:
         :return: UserModel The retrieved user object.
         """
         user: User = await User.get(self.db, user_id)
+        logger.info(f"Retrieved user by id: {user_id}")
         return user
 
     async def get_user_by_email(self, email: str) -> User:
@@ -120,6 +125,7 @@ class UserService:
         :return: UserModel The retrieved user object.
         """
         user: User = await User.get_by_email(self.db, email)
+        logger.info(f"Retrieved user by email: {email}")
         return user
 
     async def get_user_by_login(self, login: str) -> User:
@@ -130,17 +136,18 @@ class UserService:
         :return: UserModel The retrieved user object.
         """
         user: User = await User.get_by_login(self.db, login)
+        logger.info(f"Retrieved user by login: {login}")
         return user
 
     async def update_user_info(self, login: str, new_user_data: dict):
         user: User = await User.get_by_login(self.db, login)
-        user.login = login
         user.email = new_user_data.get('email')
         user.first_name = new_user_data.get('first_name')
         user.middle_name = new_user_data.get('middle_name')
         user.last_name = new_user_data.get('last_name')
         user.password = new_user_data.get('password')
         await self.db.commit()
+        logger.info(f"User {login} info was updated.")
         return user
 
     async def put_refresh_token_to_db(

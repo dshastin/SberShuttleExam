@@ -4,12 +4,14 @@ from fastapi import APIRouter, UploadFile, Depends, Request
 from models import Image, ImageModel
 from db.postgres import get_db
 from fastapi.responses import RedirectResponse
+from core.logger import logger
 
 router = APIRouter()
 
 @router.get("/get_all", tags=["uploads"], response_model=list[ImageModel])
 async def get_uploaded_files(request: Request, db=Depends(get_db)):
     all_images: list[Image] = await Image.get_all(db)
+    logger.info(f"Got {len(all_images)}")
     return all_images
 
 
@@ -25,4 +27,5 @@ async def create_upload_file(files: list[UploadFile], db=Depends(get_db)):
         file_path = f'static/{file.filename}'
         with open(file_path, 'wb') as f:
             shutil.copyfileobj(file.file, f)
+    logger.info(f'uploaded {len(uploaded_files)} files')
     return uploaded_files

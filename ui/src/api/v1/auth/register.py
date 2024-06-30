@@ -25,7 +25,7 @@ async def register_user(
 
 @register_router.post(
     "/form",
-    response_model=UserSchemaCreateSuccess,
+    response_model=UserSchemaCreate,
     summary="Register new user",
     description="Creates a new user with the provided information.",
     tags=["Authentication"],

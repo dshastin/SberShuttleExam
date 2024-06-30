@@ -37,6 +37,5 @@ async def update_user(request: Request, login: str,
         middle_name=middle_name,
         last_name=last_name
     )
-    print(new_user_data)
     user = await user_service.update_user_info(login, new_user_data)
     return user
