@@ -18,14 +18,6 @@ async def login(
         user: UserSchemaBase = Body(),
         user_service: UserService = Depends(get_user_service),
 ) -> JWToken:
-    """
-    Generates access and refresh tokens for user authentication and authorization.
-
-    :param user_agent: str The user agent string for the request.
-    :param user: UserSchemaBase The user information for authentication.
-    :param user_service: UserService An instance of UserService for user authentication.
-    :return: JWTToken containing access and refresh tokens for the user.
-    """
     user = await user_service.authenticate_user(user.email, user.password)
     if not user:
         raise HTTPException(

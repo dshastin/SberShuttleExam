@@ -6,8 +6,6 @@ from .schemas.user import (
     JWTokenData,
     UserSchema,
     UserSchemaBase,
-    UserSchemaChangeLogin,
-    UserSchemaChangePassword,
     UserSchemaCreate,
     UserSchemaCreateSuccess,
 )

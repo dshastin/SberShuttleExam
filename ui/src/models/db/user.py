@@ -41,6 +41,13 @@ class User(Base, UUIDModelMixin, CreatedAtMixin, BaseCRUDModelMixin):
         result = await db.execute(select(cls).where(cls.login == login))
         return result.scalars().first()
 
+    @classmethod
+    async def get_all(cls, db: AsyncSession):
+        result = await db.execute(select(cls))
+        return result.scalars().all()
+
+
+
     def __repr__(self) -> str:
         return f"<User {self.login}>"
 

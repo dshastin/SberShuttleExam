@@ -1,4 +1,3 @@
-import hashlib
 from datetime import datetime, timedelta, timezone
 from functools import lru_cache
 from uuid import UUID
@@ -8,16 +7,14 @@ from jose import jwt
 from sqlalchemy import Select, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.operators import and_
-from werkzeug.security import generate_password_hash
 
 from core.config import settings
+from core.logger import logger
 from db.postgres import get_db
 from models import (
     Device,
     JWToken,
     User,
-    UserSchemaChangeLogin,
-    UserSchemaChangePassword,
     UserSchemaCreate,
     UserSchemaCreateSuccess,
 )
@@ -46,6 +43,13 @@ class UserService:
         return user
 
     async def login_user(self, user: User, user_agent: str):
+        """
+        Authenticates a user and generates access and refresh tokens.
+
+        :param user: User The user object to be authenticated.
+        :param user_agent: str The user agent of the user's device.
+        :return: JWToken The JWToken object containing the access and refresh tokens.
+        """
         access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
         user_data: UserSchemaCreateSuccess = UserSchemaCreateSuccess.model_validate(user)
         payload_data = user_data.model_dump(mode="json")
@@ -87,40 +91,6 @@ class UserService:
         )
         return encoded_jwt
 
-    async def change_login(self, user_id: UUID, user_data: UserSchemaChangeLogin):
-        """
-        Changes the login for a user.
-
-        :param user_id: str The unique identifier of the user.
-        :param user_data: UserSchemaChangeLogin The new login information for the user.
-        :raises: HTTPException If the user is not found.
-        """
-        user: User = await User.get(self.db, user_id)
-        if not user:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="user not found")
-        check_login_exist_user = await User.get_by_login(self.db, user_data.login)
-        if check_login_exist_user:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="login already exists"
-            )
-        user.login = user_data.login
-        await self.db.commit()
-
-    async def change_password(self, user_id: UUID, user_data: UserSchemaChangePassword):
-        """
-        Changes the password for a user.
-
-        :param user_id: str The unique identifier of the user.
-        :param user_data: UserSchemaChangePassword The new password information for the user.
-        :raises: HTTPException If the user is not found.
-        """
-        user: User = await User.get(self.db, user_id)
-        if not user:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="user not found")
-
-        user.password = generate_password_hash(user_data.old_password)
-        await self.db.commit()
-
     async def create_user(self, user_data: UserSchemaCreate) -> User:
         """
         Creates a new user with the provided information.
@@ -160,6 +130,17 @@ class UserService:
         :return: UserModel The retrieved user object.
         """
         user: User = await User.get_by_login(self.db, login)
+        return user
+
+    async def update_user_info(self, login: str, new_user_data: dict):
+        user: User = await User.get_by_login(self.db, login)
+        user.login = login
+        user.email = new_user_data.get('email')
+        user.first_name = new_user_data.get('first_name')
+        user.middle_name = new_user_data.get('middle_name')
+        user.last_name = new_user_data.get('last_name')
+        user.password = new_user_data.get('password')
+        await self.db.commit()
         return user
 
     async def put_refresh_token_to_db(
