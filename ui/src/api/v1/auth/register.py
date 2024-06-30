@@ -1,6 +1,8 @@
 from typing import Annotated
+
 from fastapi import APIRouter, Body, Depends, Request, Form
 
+from core.config import templates
 from models import UserSchemaCreate, UserSchemaCreateSuccess
 from services.users import UserService, get_user_service
 
@@ -39,7 +41,7 @@ async def register_user_form(
         middle_name: Annotated[str, Form()],
         last_name: Annotated[str, Form()],
         user_service: UserService = Depends(get_user_service),
-) -> UserSchemaCreateSuccess:
+):
     user_form = UserSchemaCreate(login=login,
                                  email=email,
                                  password=password,
@@ -47,4 +49,6 @@ async def register_user_form(
                                  middle_name=middle_name,
                                  last_name=last_name)
     user = await user_service.create_user(user_form)
-    return user
+    return templates.TemplateResponse("result.html",
+                                      {"request": request,
+                                       "result": f"User {user.login} created"})

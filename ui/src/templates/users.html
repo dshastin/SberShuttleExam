@@ -15,7 +15,7 @@
   <tbody>
     {% for user in users_list %}
     <tr>
-      <th scope="row"><a href="/pages/users/{{ user.login }}">{{ user.login }}</a></th>
+      <th scope="row"><a href="/users/{{ user.login }}">{{ user.login }}</a></th>
       <td>{{ user.email }}</td>
       <td>{{ user.first_name }}</td>
       <td>{{ user.middle_name }}</td>

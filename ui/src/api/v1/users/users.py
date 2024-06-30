@@ -1,7 +1,7 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, Request, Body, Form
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from core.config import templates
 from db.postgres import get_db
 from models import UserSchemaCreate, User
 from services.users import UserService, get_user_service
@@ -38,4 +38,6 @@ async def update_user(request: Request, login: str,
         last_name=last_name
     )
     user = await user_service.update_user_info(login, new_user_data)
-    return user
+    return templates.TemplateResponse("result.html",
+                                      {"request": request,
+                                       "result": f"User {user.login} updated"})

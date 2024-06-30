@@ -1,5 +1,8 @@
-from fastapi import APIRouter, Body, Depends, Header, HTTPException, Request, status, Form
 from typing import Annotated
+
+from fastapi import APIRouter, Body, Depends, Header, HTTPException, Request, status, Form
+
+from core.config import templates
 from models import JWToken, UserSchemaBase
 from services.users import UserService, get_user_service
 
@@ -32,6 +35,7 @@ async def login(
 
 @login_router.post('/login_form', tags=["Authentication"])
 async def login_form(
+        request: Request,
         email: Annotated[str, Form()],
         password: Annotated[str, Form()],
         user_agent: str = Header(default=None),
@@ -46,4 +50,6 @@ async def login_form(
         )
 
     tokens: JWToken = await user_service.login_user(user=user, user_agent=user_agent)
-    return tokens
+    return templates.TemplateResponse("result.html",
+                                      {"request": request,
+                                       "result": f"User {user.login} tokens: {tokens}"})

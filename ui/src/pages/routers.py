@@ -1,12 +1,10 @@
 from fastapi import APIRouter, Request, Depends
-from fastapi.templating import Jinja2Templates
 
 from api.v1.uploads.uploads import get_uploaded_files
 from api.v1.users.users import get_all_users, get_user_by_login
+from core.config import templates
 
 router = APIRouter(tags=['Pages'])
-
-templates = Jinja2Templates(directory='templates')
 
 
 @router.get('/')

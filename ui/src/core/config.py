@@ -1,5 +1,6 @@
 import os
 
+from fastapi.templating import Jinja2Templates
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -41,4 +42,5 @@ class Settings(BaseSettings):
         return pg_url
 
 
+templates = Jinja2Templates("templates")
 settings = Settings()
