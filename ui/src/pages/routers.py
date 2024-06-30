@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Depends
 from fastapi.templating import Jinja2Templates
+from api.v1.uploads.uploads import get_uploaded_files
 
 router = APIRouter()
 
@@ -22,5 +23,5 @@ def get_base_template(request: Request):
 
 
 @router.get("/gallery")
-async def get_files(request: Request):
-    return templates.TemplateResponse("gallery.html", {"request": request, 'images': ['1', '2', '3']})
+async def get_files(request: Request, images=Depends(get_uploaded_files)):
+    return templates.TemplateResponse("gallery.html", {"request": request, 'images': images})
